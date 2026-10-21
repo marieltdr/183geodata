@@ -8,7 +8,6 @@ const map = new mapboxgl.Map({
   touchZoomRotate: true 
 });
 
-// Add zoom/rotation navigation controls for touch usability
 map.addControl(new mapboxgl.NavigationControl());
 
 map.on('load', function() {
@@ -35,17 +34,20 @@ map.on('load', function() {
         5, '#E8C94D', 
         20, '#E8C21C' 
       ],
+      'circle-opacity': 1, 
       'circle-radius': [
         'step',
         ['get', 'point_count'],
-        20, 
-        100, 30, 
-        750, 40 
+        18, 
+        5, 24, 
+        15, 30 
       ]
+      'circle-stroke-width': 1.5,
+      'circle-stroke-color': '#FFFFFF'
+      'circle-stroke-opacity': 1
     }
   });
 
-  // Cluster Numbers
   map.addLayer({
     id: 'cluster-count',
     type: 'symbol',
@@ -58,20 +60,20 @@ map.on('load', function() {
     }
   });
 
-  // Individual Unclustered Points
   map.addLayer({
     id: 'unclustered-point',
     type: 'circle',
     source: 'points-data',
     filter: ['!', ['has', 'point_count']],
     paint: {
-      'circle-color': '#11b4da',
+      'circle-color': '#FFFF70',
       'circle-radius': [
         'case',
         ['boolean', ['feature-state', 'hover'], false],
         10, // Size when hovered
         6   // Default size
       ],
+      'circle-opacity': 1,
       'circle-stroke-width': 1,
       'circle-stroke-color': '#fff'
     }
