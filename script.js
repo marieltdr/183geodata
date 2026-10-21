@@ -50,8 +50,10 @@ map.on('load', function() {
             5, 28, 
             15, 36 
           ],
-          'circle-stroke-width': 1.5,
+          
+          'circle-stroke-width': 2,
           'circle-stroke-color': '#FFFFFF'
+          'circle-stroke-opacity': 1
         }
       });
 
