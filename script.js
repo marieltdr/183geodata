@@ -24,34 +24,50 @@ map.on('load', function() {
   fetch('https://raw.githubusercontent.com/marieltdr/183geodata/refs/heads/main/183data.geojson')
     .then(res => res.json())
     .then(data => {
-      const dates = new Set();
+      // Extract 4-digit year from string like "1 Feb 1999" or "1999"
       data.features.forEach(f => {
-        const d = f.properties["original_*  Designated  *"] || f.properties["Designated"];
-        if (d) dates.add(d.trim());
+        const dateStr = f.properties["original_*  Designated  *"] || f.properties["Designated"] || "";
+        const match = dateStr.match(/\b\d{4}\b/);
+        f.properties.year = match ? parseInt(match[0], 10) : null;
       });
   
-      const select = document.getElementById('date-filter');
-      Array.from(dates).sort().forEach(date => {
-        const opt = document.createElement('option');
-        opt.value = date;
-        opt.textContent = date;
-        select.appendChild(opt);
-      });
+      // Add source with processed year properties
+      if (map.getSource('points-data')) {
+        map.getSource('points-data').setData(data);
+      } else {
+        map.addSource('points-data', {
+          type: 'geojson',
+          data: data,
+          generateId: true,
+          cluster: true,
+          clusterMaxZoom: 12,
+          clusterRadius: 50
+        });
+      }
     });
-    document.getElementById('date-filter').addEventListener('change', (e) => {
-    const selectedDate = e.target.value;
   
-    if (selectedDate === 'all') {
+  // Handle range dropdown changes
+  document.getElementById('date-filter').addEventListener('change', (e) => {
+    const range = e.target.value;
+  
+    let yearFilter;
+    if (range === 'before-2000') {
+      yearFilter = ['<', ['get', 'year'], 2000];
+    } else if (range === '2000-2005') {
+      yearFilter = ['all', ['>=', ['get', 'year'], 2000], ['<=', ['get', 'year'], 2005]];
+    } else if (range === 'after-2005') {
+      yearFilter = ['>', ['get', 'year'], 2005];
+    }
+  
+    if (range === 'all') {
       map.setFilter('unclustered-point', ['!', ['has', 'point_count']]);
-      map.setFilter('clusters', ['has', 'point_count']);
-      map.setFilter('cluster-count', ['has', 'point_count']);
     } else {
-      const dateFilter = [
-        'any',
-        ['==', ['get', 'original_*  Designated  *'], selectedDate],
-        ['==', ['get', 'Designated'], selectedDate]
-      ];
-      map.setFilter('unclustered-point', ['all', ['!', ['has', 'point_count']], dateFilter]);
+      map.setFilter('unclustered-point', [
+        'all',
+        ['!', ['has', 'point_count']],
+        ['has', 'year'],
+        yearFilter
+      ]);
     }
   });
 
@@ -68,6 +84,9 @@ map.on('load', function() {
         '#F7DF7C', 
         5, '#E8C94D', 
         20, '#E8C21C' 
+        'circle-opacity': 1, 
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': '#FFFFFF' 
       ],
       'circle-radius': [
         'step',
@@ -99,13 +118,14 @@ map.on('load', function() {
     source: 'points-data',
     filter: ['!', ['has', 'point_count']],
     paint: {
-      'circle-color': '#11b4da',
+      'circle-color': '#FFFF70',
       'circle-radius': [
         'case',
         ['boolean', ['feature-state', 'hover'], false],
         10, // Size when hovered
         6   // Default size
       ],
+      'circle-opacity': 1, 
       'circle-stroke-width': 1,
       'circle-stroke-color': '#fff'
     }
