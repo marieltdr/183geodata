@@ -8,6 +8,7 @@ const map = new mapboxgl.Map({
   touchZoomRotate: true 
 });
 
+// Add zoom/rotation navigation controls for touch usability
 map.addControl(new mapboxgl.NavigationControl());
 
 map.on('load', function() {
@@ -20,7 +21,7 @@ map.on('load', function() {
     clusterRadius: 50 
   });
 
-  // Clusters
+  // Cluster Circles
   map.addLayer({
     id: 'clusters',
     type: 'circle',
@@ -30,9 +31,9 @@ map.on('load', function() {
       'circle-color': [
         'step',
         ['get', 'point_count'],
-        '#51bbd6', 
-        100, '#f1f075', 
-        750, '#f28cb1' 
+        '#F7DF7C', 
+        5, '#E8C94D', 
+        20, '#E8C21C' 
       ],
       'circle-radius': [
         'step',
@@ -57,7 +58,7 @@ map.on('load', function() {
     }
   });
 
-  // Individual Points
+  // Individual Unclustered Points
   map.addLayer({
     id: 'unclustered-point',
     type: 'circle',
