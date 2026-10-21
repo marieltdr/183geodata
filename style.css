@@ -4,7 +4,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #191a1a; /* Matches Mapbox dark basemap to prevent white flashes */
+  background-color: #191a1a;
 }
 
 #map {
