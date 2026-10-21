@@ -20,6 +20,41 @@ map.on('load', function() {
     clusterRadius: 50 
   });
 
+    // Filtering
+  fetch('https://raw.githubusercontent.com/marieltdr/183geodata/refs/heads/main/183data.geojson')
+    .then(res => res.json())
+    .then(data => {
+      const dates = new Set();
+      data.features.forEach(f => {
+        const d = f.properties["original_*  Designated  *"] || f.properties["Designated"];
+        if (d) dates.add(d.trim());
+      });
+  
+      const select = document.getElementById('date-filter');
+      Array.from(dates).sort().forEach(date => {
+        const opt = document.createElement('option');
+        opt.value = date;
+        opt.textContent = date;
+        select.appendChild(opt);
+      });
+    });
+    document.getElementById('date-filter').addEventListener('change', (e) => {
+    const selectedDate = e.target.value;
+  
+    if (selectedDate === 'all') {
+      map.setFilter('unclustered-point', ['!', ['has', 'point_count']]);
+      map.setFilter('clusters', ['has', 'point_count']);
+      map.setFilter('cluster-count', ['has', 'point_count']);
+    } else {
+      const dateFilter = [
+        'any',
+        ['==', ['get', 'original_*  Designated  *'], selectedDate],
+        ['==', ['get', 'Designated'], selectedDate]
+      ];
+      map.setFilter('unclustered-point', ['all', ['!', ['has', 'point_count']], dateFilter]);
+    }
+  });
+
   // Clusters
   map.addLayer({
     id: 'clusters',
@@ -30,9 +65,9 @@ map.on('load', function() {
       'circle-color': [
         'step',
         ['get', 'point_count'],
-        '#51bbd6', 
-        100, '#f1f075', 
-        750, '#f28cb1' 
+        '#F7DF7C', 
+        5, '#E8C94D', 
+        20, '#E8C21C' 
       ],
       'circle-radius': [
         'step',
