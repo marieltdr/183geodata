@@ -73,7 +73,6 @@ map.on('load', function() {
         10, // Size when hovered
         6   // Default size
       ],
-      'circle-opacity': 1,
       'circle-stroke-width': 1,
       'circle-stroke-color': '#fff'
     }
